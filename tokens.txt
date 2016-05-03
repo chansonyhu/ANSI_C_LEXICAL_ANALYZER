@@ -1,0 +1,24 @@
+---- Tokens ----
+Type                : Info.
+
+CONST_INT           : 123
+CONST_FLOAT         : 12.3
+OP                  : -
+CONST_FLOAT         : 0.12
+CONST_INT           : 0x44u
+CONST_INT           : 0X56U
+CONST_INT           : 0X21allll
+OP                  : -
+CONST_FLOAT         : 1.2e10
+OP                  : -
+CONST_INT           : 5
+CONST_INT           : 000000123
+CONST_INT           : 5e10
+CONST_CHAR          : '3'
+CONST_CHAR          : '\n'
+STRING              : "11"
+IDENTIFIER          : fdwr
+IDENTIFIER          : _jfj
+IDENTIFIER          : jf_9
+--------
+Total Column: 16 
