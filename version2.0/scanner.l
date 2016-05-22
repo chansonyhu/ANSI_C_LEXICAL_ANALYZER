@@ -26,7 +26,7 @@ char WrongString[100][255];
 "<"{L}*".h>"		//return HEAD_FILE");
 "\""{L}*".h\""		//return HEAD_FILE");
 
-("auto"|"break"|"case"|"char"|"const"|"continue"|"default"|"do"|"double"|"else"|"enum"|"extern"|"float"|"for"|"goto"|"if"|"int"|"long"|"register"|"return"|"short"|"signed"|"sizeof"|"static"|"struct"|"switch"|"typedef"|"union"|"unsigned"|"void"|"volatile"|"while") 		return RESERVE");
+("auto"|"break"|"case"|"char"|"const"|"continue"|"default"|"do"|"double"|"else"|"enum"|"extern"|"float"|"for"|"goto"|"if"|"int"|"long"|"register"|"return"|"short"|"signed"|"sizeof"|"static"|"struct"|"switch"|"typedef"|"union"|"unsigned"|"void"|"volatile"|"while") 		return RESERVE;
 
 {L}({L}|{D})*		return IDENTIFIER;
 
