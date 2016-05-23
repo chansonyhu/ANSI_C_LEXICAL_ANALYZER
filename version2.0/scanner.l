@@ -19,38 +19,80 @@ char WrongString[100][255];
 
 %%
 "\n"			linenum++;
-("#"|"\\")		return SPECIAL;
+("#"|"\\")		return special;
 ("\t"|" ")
 "/*"			comment();
 "#include"		//return INCLUDE");
 "<"{L}*".h>"		//return HEAD_FILE");
 "\""{L}*".h\""		//return HEAD_FILE");
 
-("auto"|"break"|"case"|"char"|"const"|"continue"|"default"|"do"|"double"|"else"|"enum"|"extern"|"float"|"for"|"goto"|"if"|"int"|"long"|"register"|"return"|"short"|"signed"|"sizeof"|"static"|"struct"|"switch"|"typedef"|"union"|"unsigned"|"void"|"volatile"|"while") 		return RESERVE;
+"inline" return inline;
+"do" return do;
+"for" return for;
+"while" return while;
+"break" return break;
+"continue" return continue;
+"goto" return goto;
+"return" return return;
+"if" return if;
+"else" return else;
+"switch" return switch;
+"enum" return enum;
+"case" return case;
+"default" return default;
+("const"|"volatile"|"restrict") return type_qualifier;
+("typedef"|"extern"|"auto"|"register") return storage_class_specifier;
+"static" return static;
+("void"|"char"|"short"|"int"|"long"|"float"|"double"|"signed"|"unsigned") return type_specifier;
+("struct"|"union") return struct_or_union;
+"sizeof" return sizeof;
 
-{L}({L}|{D})*		return IDENTIFIER;
 
-0[xX]{H}+{IS}?		return CONST_INT;
-0{D}+{IS}?		return CONST_INT; //Integer with leading zero(s).
-{D}+{IS}?		return CONST_INT; //Integer.
-L?'(\\.|[^\\'])+'	return CONST_CHAR; //Char (Including escape character such '\n').
-{D}+{E}{FS}?		return CONST_INT; //Integer (Including scientific notation).
-{D}*"."{D}+({E})?{FS}?	return CONST_FLOAT; //Float (Including scientific notation).
-{D}+"."{D}*({E})?{FS}?	return CONST_FLOAT; //Float (Including scientific notation).
+{L}({L}|{D})*		return identifier;
 
-L?\"(\\.|[^\\"])*\"	return STRING;
+0[xX]{H}+{IS}?		return const_int;
+0{D}+{IS}?		return const_int; //Integer with leading zero(s).
+{D}+{IS}?		return const_int; //Integer.
+L?'(\\.|[^\\'])+'	return const_char; //Char (Including escape character such '\n').
+{D}+{E}{FS}?		return const_int; //Integer (Including scientific notation).
+{D}*"."{D}+({E})?{FS}?	return const_float; //Float (Including scientific notation).
+{D}+"."{D}*({E})?{FS}?	return const_float; //Float (Including scientific notation).
 
-"..."			return ELLIPSIS;
+L?\"(\\.|[^\\"])*\"	return string_literal;
 
-(">>="|"<<="|"+="|"-="|"*="|"/="|"%="|"&="|"^="|"|="|"=") return ASSIGN;
+"..."			return ellipsis;
 
-(">>"|"<<"|"++"|"--"|"->"|"&&"|"||"|"<="|">="|"=="|"!=") return OP;
+(">>="|"<<="|"+="|"-="|"*="|"/="|"%="|"&="|"^="|"|="|"=") return op_assign;
 
-("+"|"-"|"*"|"/"|"%"|"^") return OP;
+"&&" return op_and;
 
-("<"|">"|"|"|"?"|"&"|"!"|"~"|".") return OP;
+"||" return op_or;
 
-(";"|"{"|"<%"|"}"|"%>"|","|":"|"("|")"|"["|"<:"|"]"|":>") return PUNCTUATION;
+"==" return op_eq;
+
+"!=" return op_ne;
+
+"<=" return op_le;
+
+">=" return op_ge;
+
+"<<" return op_lshift;
+
+">>" return op_rshifi;
+
+"->" return op_ptr;
+
+"++" return op_pp;
+
+"--" return op_dd;
+
+("/"|"%"|"^") return op;
+
+("&"|"*"|"+"|"-"|"~"|"!") return op_unary;
+
+("<"|">"|"|"|"?"|".") return op;
+
+(";"|"{"|"<%"|"}"|"%>"|","|":"|"("|")"|"["|"<:"|"]"|":>") return punctuation;
 
 .			{
 			if(Wrong == 0) Wrong=1;
@@ -59,7 +101,7 @@ L?\"(\\.|[^\\"])*\"	return STRING;
 				strcpy(WrongString[WrongIndex],yytext);
 				WrongIndex++;
 			} else WrongIndex++;
-			return UNKNOWN;
+			return unknown;
 			}
 
 %%
