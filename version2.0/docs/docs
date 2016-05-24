@@ -1,0 +1,4 @@
+1. 按照C99 Spec中规定的文法编写完yacc源程序，同时相应地修改lex源程序以适应文法的要求。
+2. 执行指令yacc -d scanner.y，输出yacc: 7 shift/reduce conflicts, 13 reduce/reduce conflicts. 由于yacc先构造LR(1)状态机，然后通过合并同心状态来得到LALR(1)状态机，合并后产生移入/归约冲突和归约/归约冲突。
+3. 执行指令bison --report=all scanner.y得到scanner.output，通过查看状态机，来发现冲突。
+4. 
