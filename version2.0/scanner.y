@@ -9,7 +9,14 @@ void yyerror(char*);
 %}
 
 %token special
-%token inline do for while break continue goto return if else switch enum case default 
+%token inline do for while break continue goto return if else switch enum case default static sizeof
+%token type_qualifier storage_class_specifier type_specifier struct_or_union
+%token identifier const_int const_char const_float string_literal
+%token ellipsis
+%token op_assign op_and op_or op_eq op_ne op_le op_ge op_lshift op_rshift op_ptr op_pp op_dd
+
+%start translation_unit
+%nonassoc else
 %%
 
 primary_expr 	: identifier | const_int | const_char | const_float | string_literal | '(' expr ')';
@@ -30,7 +37,7 @@ unary_expr	: postfix_expr
 		| op_unary cast_expr
 		| sizeof unary_expr
 		| sizeof '(' type_name ')';
-op_unary : ;
+op_unary :'&' | '*' | '+' | '-' | '~' | '!' ;
 cast_expr	: unary_expr | '(' type_name ')' cast_expr;
 multiplicative_expr	: cast_expr
 			| multiplicative_expr '*' cast_expr
@@ -66,22 +73,22 @@ declaration_spec: storage_class_spec | storage_class_spec declaration_spec
 		| func_spec | func_spec declaration_spec;
 init_declarator_list	: init_declarator | init_declarator_list ',' init_declarator;
 init_declarator	: declarator | declarator '=' initializer;
-func_spec	: ;
 storage_class_spec	: static | storage_class_specifier;
 type_spec	: type_specifier | struct_or_union_spec | enum_spec | typedef_name; 
 struct_or_union_spec	: struct_or_union '{' struct_declaration_list '}' 
 			| struct_or_union identifier '{' struct_declaration_list '}'
 			| struct_or_union identifier;
 struct_declaration_list	: struct_declaration | struct_declaration_list struct_declaration;
-struct_declaration	: spec_qual_list struct declarator_list ';';
+struct_declaration	: spec_qual_list struct_declarator_list ';';
 spec_qual_list	: type_spec | type_spec spec_qual_list | type_qual | type_qual spec_qual_list;
 struct_declarator_list	: struct_declarator | struct_declarator_list ',' struct_declarator;
 struct_declarator	: declarator | ':' constant_expr | declarator ':' constant_expr;
 enum_spec	: enum '{' enum_list '}' | enum identifier '{' enum_list '}'
 		| enum '{' enum_list ',' '}' | enum identifier '{' enum_list ',' '}'
 		| enum identifier;
-enum_list	: enumerator | enumerator_list ',' enumerator;
-enumerator	: enum_constant | enumeration_constant '=' constant_expr;
+enum_list	: enumerator | enum_list ',' enumerator;
+enumerator	: enum_constant | enum_constant '=' constant_expr;
+enum_constant 	: identifier;
 type_qual	: type_qualifier;
 func_spec	: inline;
 declarator	: direct_declarator | pointer direct_declarator;
@@ -106,7 +113,7 @@ identifier_list	: identifier | identifier_list ',' identifier;
 type_name	: spec_qual_list | spec_qual_list abstract_declarator;
 abstract_declarator	: pointer | direct_abstract_declarator | pointer direct_abstract_declarator;
 direct_abstract_declarator	: '(' abstract_declarator ')' | '[' ']' | direct_abstract_declarator '[' ']' |  '[' type_qual_list ']' |  '[' assignment_expr ']' |  direct_abstract_declarator '[' type_qual_list ']' |  direct_abstract_declarator '[' assignment_expr ']' |  '[' type_qual_list assignment_expr ']' |  direct_abstract_declarator '[' type_qual_list assignment_expr ']' 
-				| '[' static assignment_expr ']' | direct_abstract_delarator '[' static assignment_expr ']' | '[' static type_qual_list assignment_expr ']' | direct_abstract_delarator '[' static type_qual_list assignment_expr ']' 
+				| '[' static assignment_expr ']' | direct_abstract_declarator '[' static assignment_expr ']' | '[' static type_qual_list assignment_expr ']' | direct_abstract_declarator '[' static type_qual_list assignment_expr ']' 
 				| '[' type_qual_list static assignment_expr ']' | direct_abstract_declarator '[' type_qual_list static assignment_expr ']' 
 				| '[' '*' ']' | direct_abstract_declarator '[' '*' ']'
 				| '(' ')' | direct_abstract_declarator '(' ')' | '(' para_type_list ')' | direct_abstract_declarator '(' para_type_list ')';

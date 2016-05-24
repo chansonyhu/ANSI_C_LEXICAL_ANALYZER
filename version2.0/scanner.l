@@ -78,7 +78,7 @@ L?\"(\\.|[^\\"])*\"	return string_literal;
 
 "<<" return op_lshift;
 
-">>" return op_rshifi;
+">>" return op_rshift;
 
 "->" return op_ptr;
 
@@ -86,13 +86,32 @@ L?\"(\\.|[^\\"])*\"	return string_literal;
 
 "--" return op_dd;
 
-("/"|"%"|"^") return op;
+"/" return '/';
+"%" return '%';
+"^" return '^';
+"&" return '&';
+"*" return '*';
+"+" return '+';
+"-" return '-';
+"~" return '~';
+"!" return '!';
 
-("&"|"*"|"+"|"-"|"~"|"!") return op_unary;
+"<" return '<';
+">" return '>';
+"|" return '|';
+"?" return '?';
+"." return '.';
 
-("<"|">"|"|"|"?"|".") return op;
+";" return ';';
+("{"|"<%") return '{';
+("}"|"%>") return '}';
+("["|"<:") return '[';
+("]"|":>") return ']';
+"," return ',';
+":" return ':';
+"(" return '(';
+")" return ')';
 
-(";"|"{"|"<%"|"}"|"%>"|","|":"|"("|")"|"["|"<:"|"]"|":>") return punctuation;
 
 .			{
 			if(Wrong == 0) Wrong=1;
