@@ -9,7 +9,7 @@ IS			(u|U|l|L)*
 /*在上述定义部分，FS和IS分别表示浮点数和整数后缀*/
 #include <stdio.h>
 #include <string.h>
-#include "scanner.tab.h"
+#include "y.tab.h"
 int linenum = 0;
 int Wrong = 0;
 int WrongIndex = 0;
