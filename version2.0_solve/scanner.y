@@ -1,0 +1,166 @@
+%{
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "y.tab.h"
+#ifndef YYSTYPE
+#define YYSTYPE int
+#endif
+void yyerror(char*);
+%}
+
+%token INLINE DO FOR WHILE BREAK CONTINUE GOTO RETURN IF ELSE SWITCH ENUM CASE DEFAULT STATIC SIZEOF
+%token type_qualifier storage_class_specifier type_specifier struct_or_union
+%token identifier const_int const_char const_float string_literal
+%token ellipsis
+%token op_assign op_and op_or op_eq op_ne op_le op_ge op_lshift op_rshift op_ptr op_pp op_dd
+
+%start translation_unit
+%nonassoc ELSE
+%%
+
+primary_expr 	: identifier | const_int | const_char | const_float | string_literal | '(' expr ')';
+postfix_expr 	: primary_expr
+		| postfix_expr '[' expr ']'
+		| postfix_expr '(' ')'
+		| postfix_expr '(' argument_expr_list ')'
+		| postfix_expr '.' identifier
+		| postfix_expr op_ptr identifier
+		| postfix_expr op_pp
+		| postfix_expr op_dd
+		| '(' type_name ')' '{' init_list '}' 
+		| '(' type_name ')' '{' init_list ',' '}';
+argument_expr_list 	: assignment_expr
+			| argument_expr_list ',' assignment_expr;
+unary_expr	: postfix_expr
+		| op_pp unary_expr
+		| op_dd unary_expr
+		| op_unary cast_expr
+		| SIZEOF unary_expr
+		| SIZEOF '(' type_name ')';
+op_unary :'&' | '*' | '+' | '-' | '~' | '!' ;
+cast_expr	: unary_expr | '(' type_name ')' cast_expr;
+multiplicative_expr	: cast_expr
+			| multiplicative_expr '*' cast_expr
+			| multiplicative_expr '/' cast_expr
+			| multiplicative_expr '%' cast_expr;
+additive_expr	: multiplicative_expr
+		| additive_expr '+' multiplicative_expr
+		| additive_expr '-' multiplicative_expr;
+shift_expr	: additive_expr
+		| shift_expr op_lshift additive_expr
+		| shift_expr op_rshift additive_expr;
+relational_expr	: shift_expr
+		| relational_expr '<' shift_expr
+		| relational_expr '>' shift_expr
+		| relational_expr op_le shift_expr
+		| relational_expr op_ge shift_expr;
+equality_expr	: relational_expr
+		| equality_expr op_eq relational_expr
+		| equality_expr op_ne relational_expr;
+AND_expr	: equality_expr |  AND_expr '&' equality_expr;
+ex_OR_expr	: AND_expr | ex_OR_expr '^' AND_expr;
+in_OR_expr 	: ex_OR_expr |  in_OR_expr '|' ex_OR_expr;
+logical_AND_expr: in_OR_expr | logical_AND_expr op_and in_OR_expr;
+logical_OR_expr	: logical_AND_expr | logical_OR_expr op_or logical_AND_expr;
+conditional_expr: logical_OR_expr | logical_OR_expr '?' expr ':' conditional_expr;
+assignment_expr	: conditional_expr | unary_expr op_assign assignment_expr;
+expr	 	: assignment_expr | expr  ',' assignment_expr;
+constant_expr	: conditional_expr;
+declaration	: declaration_spec ';' | declaration_spec init_declarator_list ';';
+declaration_spec: storage_class_spec | storage_class_spec declaration_spec 
+		| type_spec | type_spec declaration_spec 
+		| type_qualifier | type_qualifier declaration_spec
+		| func_spec | func_spec declaration_spec;
+init_declarator_list	: init_declarator | init_declarator_list ',' init_declarator;
+init_declarator	: declarator | declarator '=' initializer;
+storage_class_spec	: STATIC | storage_class_specifier;
+type_spec	: type_specifier | struct_or_union_spec | enum_spec | typedef_name; 
+struct_or_union_spec	: struct_or_union '{' struct_declaration_list '}' 
+			| struct_or_union identifier '{' struct_declaration_list '}'
+			| struct_or_union identifier;
+struct_declaration_list	: struct_declaration | struct_declaration_list struct_declaration;
+struct_declaration	: spec_qual_list struct_declarator_list ';';
+spec_qual_list	: type_spec | type_spec spec_qual_list | type_qual | type_qual spec_qual_list;
+struct_declarator_list	: struct_declarator | struct_declarator_list ',' struct_declarator;
+struct_declarator	: declarator | ':' constant_expr | declarator ':' constant_expr;
+enum_spec	: ENUM '{' enum_list '}' | ENUM identifier '{' enum_list '}'
+		| ENUM '{' enum_list ',' '}' | ENUM identifier '{' enum_list ',' '}'
+		| ENUM identifier;
+enum_list	: enumerator | enum_list ',' enumerator;
+enumerator	: enum_constant | enum_constant '=' constant_expr;
+enum_constant 	: identifier;
+type_qual	: type_qualifier;
+func_spec	: INLINE;
+declarator	: direct_declarator | pointer direct_declarator;
+direct_declarator	: identifier | '(' declarator ')'
+			| direct_declarator '[' ']' | direct_declarator '[' type_qual_list ']'
+			| direct_declarator '[' assignment_expr ']'
+			| direct_declarator '[' type_qual_list assignment_expr ']'
+			| direct_declarator '[' STATIC assignment_expr ']'
+			| direct_declarator '[' STATIC type_qual_list assignment_expr ']'
+			| direct_declarator '[' type_qual_list STATIC assignment_expr ']'
+			| direct_declarator '[' '*' ']'
+			| direct_declarator '[' type_qual_list '*' ']'
+			| direct_declarator '(' para_type_list ')'
+			| direct_declarator '(' identifier_list ')'
+			| direct_declarator '(' ')';
+pointer		: '*' | '*' type_qual_list | '*' pointer | '*' type_qual_list pointer;
+type_qual_list	: type_qual | type_qual_list type_qual;
+para_type_list	: para_list | para_list ',' ellipsis;
+para_list	: para_declaration | para_list ',' para_declaration;
+para_declaration: declaration_spec declarator | declaration_spec | declaration_spec abstract_declarator;
+identifier_list	: identifier | identifier_list ',' identifier;
+type_name	: spec_qual_list | spec_qual_list abstract_declarator;
+abstract_declarator	: pointer | direct_abstract_declarator | pointer direct_abstract_declarator;
+direct_abstract_declarator	: '(' abstract_declarator ')' | '[' ']' | direct_abstract_declarator '[' ']' |  '[' type_qual_list ']' |  '[' assignment_expr ']' |  direct_abstract_declarator '[' type_qual_list ']' |  direct_abstract_declarator '[' assignment_expr ']' |  '[' type_qual_list assignment_expr ']' |  direct_abstract_declarator '[' type_qual_list assignment_expr ']' 
+				| '[' STATIC assignment_expr ']' | direct_abstract_declarator '[' STATIC assignment_expr ']' | '[' STATIC type_qual_list assignment_expr ']' | direct_abstract_declarator '[' STATIC type_qual_list assignment_expr ']' 
+				| '[' type_qual_list STATIC assignment_expr ']' | direct_abstract_declarator '[' type_qual_list STATIC assignment_expr ']' 
+				| '[' '*' ']' | direct_abstract_declarator '[' '*' ']'
+				| '(' ')' | direct_abstract_declarator '(' ')' | '(' para_type_list ')' | direct_abstract_declarator '(' para_type_list ')';
+typedef_name	: identifier; 
+initializer	: assignment_expr | '{' init_list '}' | '{' init_list ',' '}';
+init_list	: initializer | designation initializer | init_list ',' initializer | init_list ',' designation initializer;
+designation	: designator_list '=';
+designator_list	: designator | designator_list designator;
+designator	: '[' constant_expr ']' | '.' identifier;
+statement	: labeled_statement | compound_statement | expr_statement | selection_statement | iteration_statement | jump_statement;
+labeled_statement	: identifier ':' statement | CASE constant_expr ':' statement | DEFAULT ':' statement;
+compound_statement	: '{' '}' | '{' block_item_list '}';
+block_item_list	: block_item | block_item_list block_item;
+block_item	: declaration | statement;
+expr_statement	: ';' | expr ';';
+selection_statement	: IF '(' expr ')' statement | IF '(' expr ')' statement ELSE statement | SWITCH '(' expr ')' statement;
+iteration_statement	: WHILE '(' expr ')' statement | DO statement WHILE '(' expr ')' ';'
+			| FOR '(' ')' statement | FOR '(' expr ';' ';' ')' statement | FOR '(' ';' expr ';' ')' statement | FOR '(' ';' ';' expr ')' statement | FOR '(' expr ';' expr ';' ')' statement | FOR '(' expr ';' ';' expr ')' statement | FOR '(' ';' expr ';' expr ')' statement | FOR '(' expr ';' expr ';' expr ')' statement 
+			| FOR '(' declaration ';' ')' statement | FOR '(' declaration expr ';' ')' statement | FOR '(' declaration ';' expr ')' statement | FOR '(' declaration expr ';' expr ')' statement;
+jump_statement	: GOTO identifier ';' | CONTINUE ';' | BREAK ';' | RETURN';' | RETURN expr ';';
+translation_unit	: external_declaration | translation_unit external_declaration;
+external_declaration	: func_definition | declaration;
+func_definition	: declaration_spec declarator compound_statement | declaration_spec declarator declaration_list compound_statement;
+declaration_list	: declaration | declaration_list declaration;
+
+%%
+
+#pragma comment(lib,"yl.lib")
+extern FILE * yyin;
+extern int linenum;
+extern void show_wrong();
+extern int WrongIndex;
+extern int WrongLine[100];
+extern int WrongString[100][255];
+extern int Wrong;
+extern char yytext[];
+void yyerror(char* s) {
+	printf("---- Syntax Wrong Information ----\n");
+	printf("Line %d encounterred %s \"%s\".\n",linenum,s,yytext);
+	//printf("Line %d: %s \n",linenum,s);
+}
+int main(void)
+{
+	yyin=stdin;
+	printf("Start analysing\n");
+	yyparse();
+	if(Wrong) show_wrong();
+	return 0;
+}
