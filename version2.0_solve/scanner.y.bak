@@ -15,11 +15,6 @@ void yyerror(char*);
 %token ellipsis
 %token op_assign op_and op_or op_eq op_ne op_le op_ge op_lshift op_rshift op_ptr op_pp op_dd
 
-%left op_eq op_ne op_le op_ge '<' '>'
-%left '+' '-'
-%left '*' '/'
-%right identifier
-%nonassoc ELSE
 %start translation_unit
 %%
 
@@ -71,10 +66,10 @@ conditional_expr: logical_OR_expr | logical_OR_expr '?' expr ':' conditional_exp
 assignment_expr	: conditional_expr | unary_expr op_assign assignment_expr;
 expr	 	: assignment_expr | expr  ',' assignment_expr;
 constant_expr	: conditional_expr;
-declaration	: error | declaration_spec ';' | declaration_spec init_declarator_list ';';
+declaration	: declaration_spec ';' | declaration_spec init_declarator_list ';';
 declaration_spec: storage_class_spec | storage_class_spec declaration_spec 
 		| type_spec | type_spec declaration_spec 
-		| type_qual | type_qual declaration_spec
+		| type_qualifier | type_qualifier declaration_spec
 		| func_spec | func_spec declaration_spec;
 init_declarator_list	: init_declarator | init_declarator_list ',' init_declarator;
 init_declarator	: declarator | declarator '=' initializer;
@@ -96,7 +91,7 @@ enumerator	: enum_constant | enum_constant '=' constant_expr;
 enum_constant 	: identifier;
 type_qual	: type_qualifier;
 func_spec	: INLINE;
-declarator	: error | direct_declarator | pointer direct_declarator;
+declarator	: direct_declarator | pointer direct_declarator;
 direct_declarator	: identifier | '(' declarator ')'
 			| direct_declarator '[' ']' | direct_declarator '[' type_qual_list ']'
 			| direct_declarator '[' assignment_expr ']'
@@ -156,6 +151,7 @@ extern int WrongString[100][255];
 extern int Wrong;
 extern char yytext[];
 void yyerror(char* s) {
+	printf("---- Syntax Wrong Information ----\n");
 	printf("Line %d encounterred %s \"%s\".\n",linenum,s,yytext);
 	//printf("Line %d: %s \n",linenum,s);
 }

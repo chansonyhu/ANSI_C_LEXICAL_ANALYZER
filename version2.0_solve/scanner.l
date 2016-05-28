@@ -139,20 +139,21 @@ int check_type()
 comment()
 {
 	char c, c1;
-	printf("COMMENT             : ");
+	//printf("COMMENT             : ");
 loop:
 	while ((c = input()) != '*' && c != EOF)
-		putchar(c);
+		//putchar(c);
 
 	if ((c1 = input()) != '/' && c != EOF)
 	{
 		//unput means delete the *
-		unput(c1);
+		//unput(c1);
 		goto loop;
 	}
     if (c != EOF)
-		putchar(c1);
-	printf("\n");
+		//putchar(c1);
+	//printf("\n")
+	;
 }
 
 void show_wrong()

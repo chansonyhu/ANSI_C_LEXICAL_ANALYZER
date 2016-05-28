@@ -1,0 +1,252 @@
+语法
+
+    0 $accept: line $end
+
+    1 line: bexpr '\n'
+    2     | '\n'
+
+    3 bexpr: bexpr '|' bterm
+    4      | bterm
+
+    5 bterm: bterm '&' bfactor
+    6      | bfactor
+
+    7 bfactor: '~' bfactor
+    8        | '(' bexpr ')'
+    9        | TRUE
+   10        | FALSE
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'\n' (10) 1 2
+'&' (38) 5
+'(' (40) 8
+')' (41) 8
+'|' (124) 3
+'~' (126) 7
+error (256)
+TRUE (258) 9
+FALSE (259) 10
+
+
+Nonterminals, with rules where they appear
+
+$accept (11)
+    on left: 0
+line (12)
+    on left: 1 2, on right: 0
+bexpr (13)
+    on left: 3 4, on right: 1 3 8
+bterm (14)
+    on left: 5 6, on right: 3 4 5
+bfactor (15)
+    on left: 7 8 9 10, on right: 5 6 7
+
+
+State 0
+
+    0 $accept: . line $end
+    1 line: . bexpr '\n'
+    2     | . '\n'
+    3 bexpr: . bexpr '|' bterm
+    4      | . bterm
+    5 bterm: . bterm '&' bfactor
+    6      | . bfactor
+    7 bfactor: . '~' bfactor
+    8        | . '(' bexpr ')'
+    9        | . TRUE
+   10        | . FALSE
+
+    TRUE   shift, and go to state 1
+    FALSE  shift, and go to state 2
+    '\n'   shift, and go to state 3
+    '~'    shift, and go to state 4
+    '('    shift, and go to state 5
+
+    line     转到状态 6
+    bexpr    转到状态 7
+    bterm    转到状态 8
+    bfactor  转到状态 9
+
+
+State 1
+
+    9 bfactor: TRUE .
+
+    $default  reduce using rule 9 (bfactor)
+
+
+State 2
+
+   10 bfactor: FALSE .
+
+    $default  reduce using rule 10 (bfactor)
+
+
+State 3
+
+    2 line: '\n' .
+
+    $default  reduce using rule 2 (line)
+
+
+State 4
+
+    7 bfactor: . '~' bfactor
+    7        | '~' . bfactor
+    8        | . '(' bexpr ')'
+    9        | . TRUE
+   10        | . FALSE
+
+    TRUE   shift, and go to state 1
+    FALSE  shift, and go to state 2
+    '~'    shift, and go to state 4
+    '('    shift, and go to state 5
+
+    bfactor  转到状态 10
+
+
+State 5
+
+    3 bexpr: . bexpr '|' bterm
+    4      | . bterm
+    5 bterm: . bterm '&' bfactor
+    6      | . bfactor
+    7 bfactor: . '~' bfactor
+    8        | . '(' bexpr ')'
+    8        | '(' . bexpr ')'
+    9        | . TRUE
+   10        | . FALSE
+
+    TRUE   shift, and go to state 1
+    FALSE  shift, and go to state 2
+    '~'    shift, and go to state 4
+    '('    shift, and go to state 5
+
+    bexpr    转到状态 11
+    bterm    转到状态 8
+    bfactor  转到状态 9
+
+
+State 6
+
+    0 $accept: line . $end
+
+    $end  shift, and go to state 12
+
+
+State 7
+
+    1 line: bexpr . '\n'
+    3 bexpr: bexpr . '|' bterm
+
+    '\n'  shift, and go to state 13
+    '|'   shift, and go to state 14
+
+
+State 8
+
+    4 bexpr: bterm .  ['\n', '|', ')']
+    5 bterm: bterm . '&' bfactor
+
+    '&'  shift, and go to state 15
+
+    $default  reduce using rule 4 (bexpr)
+
+
+State 9
+
+    6 bterm: bfactor .
+
+    $default  reduce using rule 6 (bterm)
+
+
+State 10
+
+    7 bfactor: '~' bfactor .
+
+    $default  reduce using rule 7 (bfactor)
+
+
+State 11
+
+    3 bexpr: bexpr . '|' bterm
+    8 bfactor: '(' bexpr . ')'
+
+    '|'  shift, and go to state 14
+    ')'  shift, and go to state 16
+
+
+State 12
+
+    0 $accept: line $end .
+
+    $default  接受
+
+
+State 13
+
+    1 line: bexpr '\n' .
+
+    $default  reduce using rule 1 (line)
+
+
+State 14
+
+    3 bexpr: bexpr '|' . bterm
+    5 bterm: . bterm '&' bfactor
+    6      | . bfactor
+    7 bfactor: . '~' bfactor
+    8        | . '(' bexpr ')'
+    9        | . TRUE
+   10        | . FALSE
+
+    TRUE   shift, and go to state 1
+    FALSE  shift, and go to state 2
+    '~'    shift, and go to state 4
+    '('    shift, and go to state 5
+
+    bterm    转到状态 17
+    bfactor  转到状态 9
+
+
+State 15
+
+    5 bterm: bterm '&' . bfactor
+    7 bfactor: . '~' bfactor
+    8        | . '(' bexpr ')'
+    9        | . TRUE
+   10        | . FALSE
+
+    TRUE   shift, and go to state 1
+    FALSE  shift, and go to state 2
+    '~'    shift, and go to state 4
+    '('    shift, and go to state 5
+
+    bfactor  转到状态 18
+
+
+State 16
+
+    8 bfactor: '(' bexpr ')' .
+
+    $default  reduce using rule 8 (bfactor)
+
+
+State 17
+
+    3 bexpr: bexpr '|' bterm .  ['\n', '|', ')']
+    5 bterm: bterm . '&' bfactor
+
+    '&'  shift, and go to state 15
+
+    $default  reduce using rule 3 (bexpr)
+
+
+State 18
+
+    5 bterm: bterm '&' bfactor .
+
+    $default  reduce using rule 5 (bterm)

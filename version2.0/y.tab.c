@@ -1130,7 +1130,7 @@ typedef struct {
 } YYSTACKDATA;
 /* variables for the parser stack */
 static YYSTACKDATA yystack;
-#line 143 "scanner.y"
+#line 142 "scanner.y"
 
 #pragma comment(lib,"yl.lib")
 extern FILE * yyin;

@@ -2436,6 +2436,7 @@ void show_wrong()
 		fprintf(stderr,"Line %d encounterred illegal string \"%s\".\n",WrongLine[i],WrongString[i]);
 	fprintf(stderr,"There exists %d lexical errors.\n",WrongIndex);
 	if(WrongIndex>100) fprintf(stderr,"Only show the fisrt one hundred errors.\n");
+	double a,b,c;
 }
 
 

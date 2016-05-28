@@ -16,10 +16,11 @@ void yyerror(char*);
 %token op_assign op_and op_or op_eq op_ne op_le op_ge op_lshift op_rshift op_ptr op_pp op_dd
 
 %start translation_unit
+%nonassoc ')'
 %nonassoc else
 %%
 
-primary_expr 	: identifier | const_int | const_char | const_float | string_literal | '(' expr ')';
+primary_expr 	: typedef_name | const_int | const_char | const_float | string_literal | '(' expr ')';
 postfix_expr 	: primary_expr
 		| postfix_expr '[' expr ']'
 		| postfix_expr '(' argument_expr_list ')'
@@ -74,7 +75,7 @@ declaration_spec: storage_class_spec | storage_class_spec declaration_spec
 init_declarator_list	: init_declarator | init_declarator_list ',' init_declarator;
 init_declarator	: declarator | declarator '=' initializer;
 storage_class_spec	: static | storage_class_specifier;
-type_spec	: type_specifier | struct_or_union_spec | enum_spec | typedef_name; 
+type_spec	: type_specifier | struct_or_union_spec | enum_spec | identifier; 
 struct_or_union_spec	: struct_or_union '{' struct_declaration_list '}' 
 			| struct_or_union identifier '{' struct_declaration_list '}'
 			| struct_or_union identifier;
